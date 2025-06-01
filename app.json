@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Peer2Peer_Bill_Splitter",
-    "slug": "Peer2Peer_Bill_Splitter",
+    "name": "Msplit",
+    "slug": "Msplit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "peer2peerbillsplitter",
-    "userInterfaceStyle": "automatic",
+    "scheme": "Msplit",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
