@@ -1,17 +1,35 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "jsx": "react-native",
+    "moduleResolution": "node16",
+    "allowJs": true,
+    "noEmit": true,
+    "isolatedModules": true,
     "strict": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
+      "*": [
+        "src/*"
       ]
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ]
+    "./src",
+    "App.tsx",
+    "app.config.ts"
+  ],
+  "exclude": ["**/__mocks__/*", "**/__tests__/*"],
+  "extends": "expo/tsconfig.base"
 }
+
+// "declaration": true,              // Required for emitDeclarationOnly
+//     "moduleResolution": "node16"      // 👈 Fixes the error
+//   },
+//   "include": ["./src"],
+//   "exclude": ["**/__mocks__/*", "**/__tests__/*"]
