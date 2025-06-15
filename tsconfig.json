@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "node16",
     "lib": [
       "dom",
       "esnext"
     ],
+    "types": ["react", "react-native", "react-navigation"],
     "jsx": "react-native",
-    "moduleResolution": "node16",
+    // REMOVE THIS LINE: "jsxImportSource": "@emotion/react",
+    "moduleResolution": "node16", // This is fine
     "allowJs": true,
     "noEmit": true,
     "isolatedModules": true,
@@ -25,11 +27,5 @@
     "app.config.ts"
   ],
   "exclude": ["**/__mocks__/*", "**/__tests__/*"],
-  "extends": "expo/tsconfig.base"
+  "extends": "expo/tsconfig.base" // This already provides defaults for Expo projects
 }
-
-// "declaration": true,              // Required for emitDeclarationOnly
-//     "moduleResolution": "node16"      // 👈 Fixes the error
-//   },
-//   "include": ["./src"],
-//   "exclude": ["**/__mocks__/*", "**/__tests__/*"]
