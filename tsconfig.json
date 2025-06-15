@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
+    // "moduleResolution": "node16",
     "target": "esnext",
-    "module": "esnext",
+    "module": "node16",
     "lib": [
       "dom",
       "esnext"
     ],
     "jsx": "react-native",
+    "jsxImportSource": "@emotion/react",
     "moduleResolution": "node16",
     "allowJs": true,
     "noEmit": true,
