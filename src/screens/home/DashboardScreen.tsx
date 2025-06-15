@@ -101,11 +101,10 @@ const styles = StyleSheet.create({
   dashboardGlass: {
     borderRadius: 20,
     padding: 16,
-    marginTop: 60,
-    boarderColor: 'rgba(236, 10, 10, 0.77)',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    marginTop: 50,
+    backgroundColor: 'rgba(61, 133, 46, 0.5)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    //borderColor: 'rgba(255, 255, 255, 0.3)',
     overflow: 'hidden',
     ...Platform.select({
       ios: {
