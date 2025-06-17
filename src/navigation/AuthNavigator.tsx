@@ -8,27 +8,29 @@ import LoginSignUpScreen from "../screens/auth/LoginScreen";
 import LandingScreen from "../screens/home/LandingScreen";
 import DashboardScreen from "../screens/home/DashboardScreen";
 import { RootStackParamList } from "./types";
-import ProfileScreen from "../screens/profile/ProfileScreen";
+import ProfileScreen from "../screens/profile/ProfileScreen"; // Keeping this import even if commented out in usage
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>(); // Add RootStackParamList for type safety
 
 export default function AuthNavigator() {
   return (
     <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Login" component={LoginSignUpScreen} />
-      <Stack.Screen name="Landing" component={LandingScreen} />
+      <Stack.Screen
+        name="Login"
+        component={LoginSignUpScreen}
+        options={{ headerShown: false }} // <-- Add this line to hide the header
+      />
+      <Stack.Screen
+        name="Landing"
+        component={LandingScreen}
+        // options={{ headerShown: false }} // <-- Uncomment this line if you also want to hide the header for Landing
+      />
       {/* <Stack.Screen name="Profile" component={ProfileScreen} /> */}
-      <Stack.Screen name="Dashboard" component={DashboardScreen} />
+      <Stack.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        // options={{ headerShown: false }} // <-- Uncomment this line if you also want to hide the header for Dashboard
+      />
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'rgb(10, 6, 6)', // This background will be behind the navigator
-    // You might remove alignItems and justifyContent if your navigator handles full screen content
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

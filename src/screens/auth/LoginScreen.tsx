@@ -687,7 +687,7 @@ const styles = StyleSheet.create({
   },
   gradientContainer: {
     ...StyleSheet.absoluteFillObject,
-    overflow: "hidden",
+    height: "100%",
   },
   gradientWrapper: {
     width: width * 2,
