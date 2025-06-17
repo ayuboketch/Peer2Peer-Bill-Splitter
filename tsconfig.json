@@ -27,5 +27,5 @@
     "app.config.ts"
   ],
   "exclude": ["**/__mocks__/*", "**/__tests__/*"],
-  "extends": "expo/tsconfig.base" // This already provides defaults for Expo projects
+  "extends": "expo/tsconfig.base", // This already provides defaults for Expo projects
 }

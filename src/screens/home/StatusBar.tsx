@@ -1,5 +1,5 @@
 // src/components/StatusHeader.tsx
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   useColorScheme,
   Platform,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function StatusHeader() {
   const insets = useSafeAreaInsets();
@@ -28,25 +28,49 @@ export default function StatusHeader() {
     return "Almost midnight, dream big 🌙";
   };
   const FeatureAlert = () => {
-    alert('Feature coming soon!');
+    alert("Feature coming soon!");
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>      
+    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
       <View style={styles.leftSection}>
-        <Ionicons name="person-circle-outline" source={require('/workspace/Peer2Peer-Bill-Splitter/assets/man.png')} size={28} color="white" style={{ marginRight: 6 }} />
+        <Ionicons
+          name="person-circle-outline"
+          source={require("../../../assets/man.png")}
+          size={28}
+          color="white"
+          style={{ marginRight: 6 }}
+        />
         <Text style={styles.greeting}>{getGreeting()}</Text>
       </View>
 
       <View style={styles.rightIcons}>
         <TouchableOpacity>
-          <MaterialCommunityIcons name="cash-fast" size={22} color="white" style={styles.icon} on={FeatureAlert}/>
+          <MaterialCommunityIcons
+            name="cash-fast"
+            size={22}
+            color="white"
+            style={styles.icon}
+            on={FeatureAlert}
+          />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Feather name="sun" size={22} color="white" style={styles.icon} on={FeatureAlert}/>
+          <Feather
+            name="sun"
+            size={22}
+            color="white"
+            style={styles.icon}
+            on={FeatureAlert}
+          />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Ionicons name="qr-code-outline" size={22} color="white" style={styles.icon} on={FeatureAlert}/>
+          <Ionicons
+            name="qr-code-outline"
+            size={22}
+            color="white"
+            style={styles.icon}
+            on={FeatureAlert}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -55,36 +79,36 @@ export default function StatusHeader() {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingBottom: 8,
     zIndex: 100,
-    backgroundColor: 'rgba(61, 133, 46, 0.5)',
+    backgroundColor: "rgba(61, 133, 46, 0.5)",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     ...Platform.select({
       ios: {
-        backdropFilter: 'blur(20px)',
+        backdropFilter: "blur(20px)",
       },
-    })
+    }),
   },
   leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   greeting: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   rightIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   icon: {
     marginLeft: 16,
