@@ -7,14 +7,13 @@
       "esnext"
     ],
     "types": ["react", "react-native", "react-navigation"],
-    "jsx": "react-native",
-    // REMOVE THIS LINE: "jsxImportSource": "@emotion/react",
     "moduleResolution": "node16", // This is fine
     "allowJs": true,
     "noEmit": true,
     "isolatedModules": true,
     "strict": true,
     "baseUrl": ".",
+    "jsx": "react-native",
     "paths": {
       "*": [
         "src/*"
@@ -27,5 +26,5 @@
     "app.config.ts"
   ],
   "exclude": ["**/__mocks__/*", "**/__tests__/*"],
-  "extends": "expo/tsconfig.base" // This already provides defaults for Expo projects
+  "extends": "expo/tsconfig.base", // This already provides defaults for Expo projects
 }
