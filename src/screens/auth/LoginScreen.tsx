@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, JSX } from "react";
 import {
   View,
   Text,
@@ -11,10 +11,17 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 // Import your preferred icon library - using react-native-vector-icons
 import Icon from "react-native-vector-icons/Feather";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CommonActions } from "@react-navigation/native";
+import { supabase } from "../../services/supabase/supabase";
+
+// Peer2Peer-Bill-Splitter/src/services/supabase/supabase.ts
+// Peer2Peer-Bill-Splitter/src/screens/auth/LoginScreen.tsx
 
 // Types
 type ViewType = "initial" | "login" | "signup" | "setupPin";
@@ -30,6 +37,8 @@ interface FormData {
 }
 
 const { width, height } = Dimensions.get("window");
+const customBackIcon = require("../../../assets/icons8-back-button-100.png");
+const customNextIcon = require("../../../assets/icons8-next-button-96.png");
 
 // Icon component using react-native-vector-icons with valid Feather icons
 const IconComponent: React.FC<{ name: string; size?: number; color?: string }> =
@@ -127,7 +136,13 @@ const CustomButton: React.FC<{
   )
 );
 
-const LoginSignUpScreen: React.FC = () => {
+interface LoginSignUpScreenProps {
+  navigation: any; // or properly type it
+}
+
+const LoginSignUpScreen: React.FC<LoginSignUpScreenProps> = ({
+  navigation,
+}) => {
   // State variables for form inputs - using single state for each field
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [pin, setPin] = useState<string>("");
@@ -200,29 +215,45 @@ const LoginSignUpScreen: React.FC = () => {
   );
 
   // Memoized handlers to prevent recreation on each render
-  const handleLogin = useCallback((): void => {
-    setMessage("");
+  // ... (inside LoginSignUpScreen component)
 
-    const dummyPhoneNumber = "0712345678";
-    const dummyPin = "1234";
+  // Handle Login submission
+  const handleLogin = async () => {
+    setMessage("");
 
     if (!phoneNumber || !pin) {
       setMessage("Please enter both phone number and PIN.");
       return;
     }
 
-    if (phoneNumber === dummyPhoneNumber && pin === dummyPin) {
-      console.log("Login successful with:", { phoneNumber, pin });
-      setMessage("Login successful! Welcome Ayub!");
-      // Simulate navigation to Landing screen
+    try {
+      // Check if user exists in Supabase
+      const { data: user, error } = await supabase
+        .from("users") // Adjust table name
+        .select("*")
+        .eq("phone", phoneNumber)
+        .eq("pin", pin)
+        .single();
+
+      if (error || !user) {
+        setMessage("Invalid phone number or PIN.");
+        return;
+      }
+
+      setMessage("Login successful! Welcome!");
+
       setTimeout(() => {
-        setMessage("");
-        // In React Native: navigation.replace('Landing');
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "Dashboard" }],
+          })
+        );
       }, 1500);
-    } else {
-      setMessage("Invalid phone number or PIN.");
+    } catch (error) {
+      setMessage("Login failed. Please try again.");
     }
-  }, [phoneNumber, pin]);
+  };
 
   // Handle Signup (User Details) Next button
   const handleSignupNext = useCallback((): void => {
@@ -262,10 +293,8 @@ const LoginSignUpScreen: React.FC = () => {
   }, [name, email, mobileNumber, changeView]);
 
   // Handle Setup PIN Create Account button
-  const handleCreateAccount = useCallback((): void => {
+  const handleCreateAccount = async () => {
     setMessage("");
-
-    const dummyNewPin = "1234";
 
     if (!newPin || !confirmNewPin) {
       setMessage("Please enter your new PIN and confirm it.");
@@ -282,22 +311,41 @@ const LoginSignUpScreen: React.FC = () => {
       return;
     }
 
-    if (newPin === dummyNewPin) {
-      console.log("Account created with:", {
-        name,
-        email,
-        mobileNumber,
-        newPin,
-      });
-      setMessage("Account created successfully! Welcome Ayub!");
+    try {
+      // Create user in Supabase
+      const { data, error } = await supabase
+        .from("users") // Adjust table name
+        .insert([
+          {
+            name: name,
+            email: email,
+            phone: mobileNumber,
+            pin: newPin,
+            is_first_time: true,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        setMessage("Account creation failed. Please try again.");
+        return;
+      }
+
+      setMessage("Account created successfully!");
+
       setTimeout(() => {
-        setMessage("");
-        // In React Native: navigation.replace('Landing');
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "Landing" }], // First-time users go to Landing
+          })
+        );
       }, 1500);
-    } else {
-      setMessage("Please use the dummy PIN 1234 to create the account.");
+    } catch (error) {
+      setMessage("Account creation failed. Please try again.");
     }
-  }, [name, email, mobileNumber, newPin, confirmNewPin]);
+  };
 
   // Forgot PIN handler
   const handleForgotPin = useCallback((): void => {
@@ -457,14 +505,34 @@ const LoginSignUpScreen: React.FC = () => {
               </View>
 
               <TouchableOpacity
-                style={styles.backButton}
                 onPress={() => {
                   clearForm();
                   changeView("initial");
                 }}
               >
-                <IconComponent name="arrow-left" size={16} color="#6B7280" />
-                <Text style={styles.backButtonText}>Back</Text>
+                <Image
+                  source={customBackIcon}
+                  style={{
+                    width: 54, // Adjust width to your icon's desired size
+                    height: 54, // Adjust height to your icon's desired size
+                    alignItems: "center",
+                    justifyContent: "center",
+                    alignContent: "center",
+                    alignSelf: "center",
+                    // tintColor: "#FFFFFF", // Optional: to color a monochrome image white
+                    resizeMode: "contain", // Ensures the image fits within the bounds
+                  }}
+                />
+                <Text
+                  style={{
+                    color: "green",
+                    fontSize: 13,
+                    textAlign: "center",
+                    marginTop: 10,
+                  }}
+                >
+                  Back
+                </Text>
               </TouchableOpacity>
             </ScrollView>
           </Animated.View>
@@ -531,24 +599,29 @@ const LoginSignUpScreen: React.FC = () => {
               ) : null}
 
               <View style={styles.buttonRow}>
-                <CustomButton
-                  title="Back"
+                <TouchableOpacity
                   onPress={() => {
                     clearForm();
-                    changeView("initial");
+                    setCurrentView("initial"); // Ensures you go back to the initial screen
                   }}
-                  backgroundColor="#6B7280"
-                  iconName="arrow-left"
-                  style={styles.halfButton}
-                />
-                <CustomButton
-                  title="Next"
+                  style={styles.imageTextButton} // Applies centering and padding to the button container
+                >
+                  <Image
+                    source={customBackIcon}
+                    style={styles.imageButtonIcon}
+                  />
+                  <Text style={styles.imageButtonText}>Back</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   onPress={handleSignupNext}
-                  backgroundColor="#2563EB"
-                  iconName="arrow-right"
-                  iconPosition="right"
-                  style={styles.halfButton}
-                />
+                  style={styles.imageTextButton} // Applies centering and padding to the button container
+                >
+                  <Image
+                    source={customNextIcon}
+                    style={styles.imageButtonIcon}
+                  />
+                  <Text style={styles.imageButtonText}>Next</Text>
+                </TouchableOpacity>
               </View>
             </ScrollView>
           </Animated.View>
@@ -833,14 +906,42 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     fontSize: 14,
   },
-  buttonRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 8,
-  },
+  // buttonRow: {
+  //   flexDirection: "row",
+  //   gap: 12,
+  //   marginTop: 8,
+  // },
   halfButton: {
     flex: 1,
     marginBottom: 0,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "center", // Center the row of buttons
+    width: "100%", // Take full width of parent
+    marginTop: 20,
+    gap: 30, // Space between the buttons (RN 0.71+). Adjust this value!
+    // For older RN versions, use marginHorizontal on imageTextButton:
+    // marginHorizontal: 15, // or similar
+  },
+  imageTextButton: {
+    alignItems: "center", // Center content (image and text) vertically
+    justifyContent: "center", // Center content (image and text) horizontally
+    padding: 10, // Padding around the icon and text
+    // If using older RN version instead of 'gap', use margin here:
+    // marginHorizontal: 15, // Example
+  },
+  imageButtonIcon: {
+    width: 54, // As per your snippet
+    height: 54, // As per your snippet
+    resizeMode: "contain",
+    // tintColor: '#FFFFFF', // Uncomment if your icon is monochrome and needs coloring
+  },
+  imageButtonText: {
+    color: "green", // As per your snippet
+    fontSize: 13, // As per your snippet
+    textAlign: "center",
+    marginTop: 10, // Space between image and text
   },
 });
 
