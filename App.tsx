@@ -1,75 +1,77 @@
-import React, { useState, useEffect } from "react";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, ActivityIndicator, View } from "react-native";
+// App.tsx
+import React from "react";
+import { ActivityIndicator, View, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { NavigationContainer } from "@react-navigation/native"; // <-- NEW IMPORT
-
-import AuthNavigator from "./src/navigation/AuthNavigator"; // <-- NEW IMPORT, assuming path
-import MainAppNavigator from "./src/navigation/AppNavigator";
+import { NavigationContainer } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(true); // Default to true
+import { AuthProvider, useAuth } from "./src/context/AuthContext";
+import AuthNavigator from "./src/navigation/AuthNavigator";
+import MainAppNavigator from "./src/navigation/AppNavigator";
+import { supabase } from "./src/services/supabase/supabase";
+import LandingScreen from "./src/screens/home/LandingScreen";
 
-  // This useEffect will check the user's status on app start
-  useEffect(() => {
-    async function checkUserStatus() {
-      try {
-        const userToken = await AsyncStorage.getItem("userToken"); // Check if a token exists
-        const setupCompleted = await AsyncStorage.getItem("setupCompleted"); // Check for a setup flag
+const LoadingScreen = () => (
+  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <ActivityIndicator size="large" color="#10B981" />
+    <Text style={{ marginTop: 10 }}>Loading...</Text>
+  </View>
+);
 
-        if (userToken) {
-          setIsAuthenticated(true);
-          if (setupCompleted === "true") {
-            setIsFirstTimeUser(false); // User logged in and completed setup
-          } else {
-            setIsFirstTimeUser(true); // User logged in, but might need to complete setup (go to Landing)
+function AppContent() {
+  const { loading, isAuthenticated, user } = useAuth();
+  const [isFirstTimeUser, setIsFirstTimeUser] = React.useState(true);
+  const [hasCompletedLanding, setHasCompletedLanding] = React.useState(false);
+
+  React.useEffect(() => {
+    if (user) {
+      supabase
+        .from("users")
+        .select("is_first_time")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.is_first_time !== undefined) {
+            setIsFirstTimeUser(data.is_first_time);
           }
-        } else {
-          setIsAuthenticated(false);
-          setIsFirstTimeUser(true); // Not logged in, go to Login
-        }
-      } catch (error) {
-        console.error("Failed to check user status:", error);
-        setIsAuthenticated(false);
-        setIsFirstTimeUser(true); // Fallback to login if error
-      } finally {
-        setIsLoading(false);
-      }
+        });
+
+      AsyncStorage.getItem("landingCompleted").then((landing) => {
+        setHasCompletedLanding(landing === "true");
+      });
     }
+  }, [user]);
 
-    checkUserStatus();
-  }, []);
+  if (loading) return <LoadingScreen />;
 
-  if (isLoading) {
+  if (!isAuthenticated) return <AuthNavigator />;
+
+  if (isFirstTimeUser && !hasCompletedLanding) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
+      <LandingScreen
+        onComplete={async () => {
+          await AsyncStorage.setItem("landingCompleted", "true");
+          setHasCompletedLanding(true);
+          await supabase
+            .from("users")
+            .update({ is_first_time: false })
+            .eq("id", user.id);
+        }}
+      />
     );
   }
 
-  return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        {isAuthenticated && !isFirstTimeUser ? (
-          <MainAppNavigator /> // User is logged in and not first time, go to Dashboard
-        ) : (
-          <AuthNavigator /> // User is new or not logged in, go to Login
-        )}
-      </NavigationContainer>
-      <StatusBar style="auto" />
-    </SafeAreaProvider>
-  );
+  return <MainAppNavigator />;
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-});
+export default function App() {
+  return (
+    <AuthProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <AppContent />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </AuthProvider>
+  );
+}

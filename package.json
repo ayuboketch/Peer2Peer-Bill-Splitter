@@ -4,6 +4,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "npx expo start --tunnel --clear",
+    "start:lan": "npx expo start --lan --clear",
     "android": "npx expo start --android",
     "ios": "npx expo start --ios",
     "web": "npx expo start --web"
@@ -21,7 +22,7 @@
     "@shopify/flash-list": "^1.7.6",
     "@supabase/supabase-js": "^2.50.0",
     "date-fns": "^4.1.0",
-    "expo": "~53.0.11",
+    "expo": "^53.0.11",
     "expo-blur": "^14.1.5",
     "expo-camera": "~16.1.8",
     "expo-contacts": "~14.2.5",
@@ -30,6 +31,7 @@
     "expo-media-library": "~17.1.7",
     "expo-modules-core": "~2.4.0",
     "expo-notifications": "~0.31.3",
+    "expo-secure-store": "~14.2.3",
     "expo-sms": "~13.1.4",
     "expo-status-bar": "~2.2.3",
     "lucide-react": "^0.516.0",
