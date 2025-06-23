@@ -3,8 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Animated, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthService } from '../services/supabase/auth';
-import { useNavigation } from '@react-navigation/native';
-import { CommonActions } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext'; // Import the AuthContext
 
 type ViewType = 'initial' | 'login' | 'signup' | 'setupPin' | 'quickLogin';
 
@@ -19,7 +18,7 @@ interface FormData {
 }
 
 export const useLoginSignUp = () => {
-  const navigation = useNavigation();
+  const { setUser } = useAuth(); // Use the auth context
   const [currentView, setCurrentView] = useState<ViewType>('initial');
   const [message, setMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -86,23 +85,6 @@ export const useLoginSignUp = () => {
   const validatePhone = (phone: string): boolean => {
     const phoneRegex = /^(\+254|0)[17]\d{8}$/;
     return phoneRegex.test(phone);
-  };
-
-  const navigateToMainApp = () => {
-    // This function should be called from the parent component
-    // or you can emit an event that the parent listens to
-    console.log('Navigate to main app');
-    
-    // If you have a callback prop, call it here
-    // onAuthSuccess?.();
-    
-    // Alternative: You can use navigation reset to go to a main stack
-    // navigation.dispatch(
-    //   CommonActions.reset({
-    //     index: 0,
-    //     routes: [{ name: 'MainApp' }],
-    //   })
-    // );
   };
 
   const handleSignupNext = async () => {
@@ -183,15 +165,28 @@ export const useLoginSignUp = () => {
       if (result.success) {
         setMessage('Account created successfully!');
         
+        // Auto-redirect after 5 seconds
+        const autoRedirectTimer = setTimeout(() => {
+          clearForm();
+          // Force update the auth context with the new user
+          if (result.user) {
+            setUser(result.user);
+          }
+        }, 5000);
+        
         Alert.alert(
           'Welcome to MSplit!',
-          'Your account has been created successfully. You can now start using the app!',
+          'Your account has been created successfully. You can now start using the app! (Auto-redirecting in 5 seconds)',
           [
             {
               text: 'Get Started',
               onPress: () => {
+                clearTimeout(autoRedirectTimer);
                 clearForm();
-                navigateToMainApp();
+                // Force update the auth context with the new user
+                if (result.user) {
+                  setUser(result.user);
+                }
               }
             }
           ]
@@ -238,15 +233,28 @@ export const useLoginSignUp = () => {
         
         await AsyncStorage.setItem('rememberedUser', formData.phoneNumber);
 
+        // Auto-redirect after 5 seconds
+        const autoRedirectTimer = setTimeout(() => {
+          clearForm();
+          // Force update the auth context with the logged in user
+          if (result.user) {
+            setUser(result.user);
+          }
+        }, 5000);
+
         Alert.alert(
           'Welcome back!',
-          `Hello ${result.profile?.full_name || 'User'}! You have been logged in successfully.`,
+          `Hello ${result.profile?.full_name || 'User'}! You have been logged in successfully. (Auto-redirecting in 5 seconds)`,
           [
             {
               text: 'Continue',
               onPress: () => {
+                clearTimeout(autoRedirectTimer);
                 clearForm();
-                navigateToMainApp();
+                // Force update the auth context with the logged in user
+                if (result.user) {
+                  setUser(result.user);
+                }
               }
             }
           ]
@@ -290,15 +298,28 @@ export const useLoginSignUp = () => {
       if (result.success) {
         setMessage('Welcome back!');
         
+        // Auto-redirect after 5 seconds
+        const autoRedirectTimer = setTimeout(() => {
+          clearForm();
+          // Force update the auth context with the logged in user
+          if (result.user) {
+            setUser(result.user);
+          }
+        }, 5000);
+        
         Alert.alert(
           'Welcome back!',
-          `Hello ${result.profile?.full_name || 'User'}! You have been logged in successfully.`,
+          `Hello ${result.profile?.full_name || 'User'}! You have been logged in successfully. (Auto-redirecting in 5 seconds)`,
           [
             {
               text: 'Continue',
               onPress: () => {
+                clearTimeout(autoRedirectTimer);
                 clearForm();
-                navigateToMainApp();
+                // Force update the auth context with the logged in user
+                if (result.user) {
+                  setUser(result.user);
+                }
               }
             }
           ]
@@ -372,6 +393,5 @@ export const useLoginSignUp = () => {
     changeView,
     clearForm,
     checkRememberedUser,
-    navigateToMainApp, // Export this for parent component to use
   };
 };

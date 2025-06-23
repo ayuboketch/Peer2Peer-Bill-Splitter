@@ -1,5 +1,5 @@
 // App.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ActivityIndicator, View, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
@@ -20,10 +20,10 @@ const LoadingScreen = () => (
 
 function AppContent() {
   const { loading, isAuthenticated, user } = useAuth();
-  const [isFirstTimeUser, setIsFirstTimeUser] = React.useState(true);
-  const [hasCompletedLanding, setHasCompletedLanding] = React.useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
+  const [hasCompletedLanding, setHasCompletedLanding] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       supabase
         .from("users")

@@ -1,6 +1,6 @@
 // src/navigation/AppNavigator.tsx
+
 import React, { useEffect, useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthService } from "../services/supabase/auth";
@@ -40,77 +40,27 @@ export default function AppNavigator() {
 
   if (isLoading) {
     return (
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Loading" component={LoadingScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Loading" component={LoadingScreen} />
+      </Stack.Navigator>
     );
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <Stack.Screen
-            name="MainApp"
-            component={MainTabNavigator}
-            options={{ gestureEnabled: false }}
-          />
-        ) : (
-          <Stack.Screen
-            name="Auth"
-            component={LoginSignUpScreen}
-            options={{ gestureEnabled: false }}
-          />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isAuthenticated ? (
+        <Stack.Screen
+          name="MainApp"
+          component={MainTabNavigator}
+          options={{ gestureEnabled: false }}
+        />
+      ) : (
+        <Stack.Screen
+          name="Auth"
+          component={LoginSignUpScreen}
+          options={{ gestureEnabled: false }}
+        />
+      )}
+    </Stack.Navigator>
   );
 }
-
-// Alternative: Auth Context Provider approach
-import { createContext, useContext } from "react";
-
-interface AuthContextType {
-  isAuthenticated: boolean;
-  login: () => void;
-  logout: () => void;
-  user: any;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-
-  const login = async () => {
-    // Called after successful login/signup
-    const profile = await AuthService.getCurrentUserProfile();
-    setUser(profile);
-    setIsAuthenticated(true);
-  };
-
-  const logout = async () => {
-    await AuthService.signOut();
-    setUser(null);
-    setIsAuthenticated(false);
-  };
-
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, user }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
